@@ -7,6 +7,7 @@ let API_BASE_URL = 'http://127.0.0.1:8000';
 document.addEventListener('DOMContentLoaded', () => {
     initInteractiveEvents();
     initDatasetUpload();
+    initActionHandlers();
     checkBackendHealth();
 });
 
@@ -303,5 +304,49 @@ function initDatasetUpload() {
             if (statusDiv) statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Processing error. Ensure backend server is running.</span>`;
             console.error(err);
         }
+    }
+}
+
+// 4. ADDITIONAL ACTION HANDLERS
+function initActionHandlers() {
+    const pdfBtn = document.getElementById('downloadPdfBtn');
+    if (pdfBtn) {
+        pdfBtn.addEventListener('click', () => {
+            window.open(`${API_BASE_URL}/report/download`, '_blank');
+        });
+    }
+
+    const csvSampleBtn = document.getElementById('downloadSampleCsvBtn');
+    if (csvSampleBtn) {
+        csvSampleBtn.addEventListener('click', () => {
+            const csvHeader = "InvoiceNo,StockCode,Description,Quantity,InvoiceDate,UnitPrice,CustomerID,Country\n";
+            let csvRows = "";
+            for (let i = 1; i <= 50; i++) {
+                const inv = 536365 + i;
+                const cust = 13000 + (i % 10);
+                const qty = Math.floor(Math.random() * 12) + 1;
+                const price = (Math.random() * 45 + 5).toFixed(2);
+                csvRows += `${inv},85123A,WHITE HANGING HEART T-LIGHT HOLDER,${qty},2010-12-01 08:26:00,${price},${cust},United Kingdom\n`;
+            }
+            const blob = new Blob([csvHeader + csvRows], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sample_retail_receipts.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    }
+
+    const searchInput = document.getElementById('atRiskSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#atRiskTbody tr');
+            rows.forEach(r => {
+                const txt = r.innerText.toLowerCase();
+                r.style.display = txt.includes(q) ? '' : 'none';
+            });
+        });
     }
 }
