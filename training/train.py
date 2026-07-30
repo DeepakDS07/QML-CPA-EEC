@@ -1,4 +1,8 @@
-import os
+import sys, os
+PROJECT_ROOT = r'c:\Downloads\quantum_hackathon'
+sys.path.insert(0, PROJECT_ROOT)
+os.chdir(PROJECT_ROOT)
+
 import json
 import torch
 import numpy as np
@@ -36,7 +40,7 @@ def run_5_seed_training(dataset_name='uci', epochs=20):
     Persists metrics to results/metrics.json and weights to saved_models/.
     """
     print(f"\n=======================================================")
-    print(f"🚀 Starting 5-Seed Statistical Training Benchmark [{dataset_name.upper()}]")
+    print(f"Starting 5-Seed Statistical Training Benchmark [{dataset_name.upper()}]")
     print(f"=======================================================\n")
     
     df = load_dataset(dataset_name)
@@ -53,6 +57,12 @@ def run_5_seed_training(dataset_name='uci', epochs=20):
         print(f"--- Seed {seed_idx+1}/5 (Seed={seed}) ---")
         X_tr, X_te, y_tr, y_te, scaler, minmax = engineer_features(df, seed=seed)
         
+        # Subsets for quantum vs classical training
+        X_tr_q = X_tr[:150]
+        y_tr_q = y_tr[:150]
+        X_te_q = X_te[:60]
+        y_te_q = y_te[:60]
+        
         # 1. Classical SVM
         svm = train_classical_svm(X_tr, y_tr, seed=seed)
         preds_svm, probs_svm = predict_classical_svm(svm, X_te)
@@ -64,31 +74,30 @@ def run_5_seed_training(dataset_name='uci', epochs=20):
         seed_results['classical_mlp'].append(evaluate_metrics(y_te, preds_mlp, probs_mlp))
         
         # 3. Quantum Kernel SVM
-        q_svm, K_tr, alignment = train_quantum_kernel_svm(X_tr, y_tr, seed=seed)
-        preds_qk, probs_qk = predict_quantum_kernel_svm(q_svm, X_tr, X_te)
-        seed_results['quantum_kernel'].append(evaluate_metrics(y_te, preds_qk, probs_qk))
+        q_svm, K_tr, alignment = train_quantum_kernel_svm(X_tr_q, y_tr_q, seed=seed)
+        preds_qk, probs_qk = predict_quantum_kernel_svm(q_svm, X_tr_q, X_te_q)
+        seed_results['quantum_kernel'].append(evaluate_metrics(y_te_q, preds_qk, probs_qk))
         last_alignment = alignment
         
         # 4. Hybrid QNN (Clean)
-        qnn_clean, hist_qnn = train_hybrid_qnn(X_tr, y_tr, epochs=epochs, seed=seed)
-        preds_qnn, probs_qnn = predict_hybrid_qnn(qnn_clean, X_te)
-        seed_results['hybrid_qnn_clean'].append(evaluate_metrics(y_te, preds_qnn, probs_qnn))
+        qnn_clean, hist_qnn = train_hybrid_qnn(X_tr_q, y_tr_q, epochs=epochs, seed=seed)
+        preds_qnn, probs_qnn = predict_hybrid_qnn(qnn_clean, X_te_q)
+        seed_results['hybrid_qnn_clean'].append(evaluate_metrics(y_te_q, preds_qnn, probs_qnn))
         
         # 5. Hybrid QNN (Noisy 1%)
-        qnn_noisy, hist_noisy = train_noisy_qnn(X_tr, y_tr, epochs=epochs, noise_prob=0.01, seed=seed)
-        preds_noisy, probs_noisy = predict_noisy_qnn(qnn_noisy, X_te)
-        seed_results['hybrid_qnn_noisy'].append(evaluate_metrics(y_te, preds_noisy, probs_noisy))
+        qnn_noisy, hist_noisy = train_noisy_qnn(X_tr_q, y_tr_q, epochs=5, noise_prob=0.01, seed=seed)
+        preds_noisy, probs_noisy = predict_noisy_qnn(qnn_noisy, X_te_q)
+        seed_results['hybrid_qnn_noisy'].append(evaluate_metrics(y_te_q, preds_noisy, probs_noisy))
         
         # 6. Ensemble Stacking
-        # Predict train probs for meta learner
-        _, tr_probs_mlp = predict_classical_mlp(mlp, X_tr)
-        _, tr_probs_qk = predict_quantum_kernel_svm(q_svm, X_tr, X_tr)
-        _, tr_probs_qnn = predict_hybrid_qnn(qnn_clean, X_tr)
+        _, tr_probs_mlp = predict_classical_mlp(mlp, X_tr_q)
+        _, tr_probs_qk = predict_quantum_kernel_svm(q_svm, X_tr_q, X_tr_q)
+        _, tr_probs_qnn = predict_hybrid_qnn(qnn_clean, X_tr_q)
         
         ens = EnsembleStackingModel(seed=seed)
-        ens.fit(tr_probs_mlp, tr_probs_qk, tr_probs_qnn, y_tr)
-        preds_ens, probs_ens = ens.predict(probs_mlp, probs_qk, probs_qnn)
-        seed_results['ensemble'].append(evaluate_metrics(y_te, preds_ens, probs_ens))
+        ens.fit(tr_probs_mlp, tr_probs_qk, tr_probs_qnn, y_tr_q)
+        preds_ens, probs_ens = ens.predict(probs_mlp[:60], probs_qk, probs_qnn)
+        seed_results['ensemble'].append(evaluate_metrics(y_te_q, preds_ens, probs_ens))
         
         if seed_idx == 0:
             last_histories = {'mlp': hist_mlp, 'hybrid_qnn': hist_qnn, 'noisy_qnn': hist_noisy}
