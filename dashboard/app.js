@@ -2,7 +2,7 @@
 // QUANTUM ANALYTICS -- ENTERPRISE DASHBOARD & LIVE API ENGINE
 // ==========================================================================
 
-const API_BASE_URL = 'http://localhost:8000';
+let API_BASE_URL = 'http://127.0.0.1:8000';
 
 document.addEventListener('DOMContentLoaded', () => {
     initInteractiveEvents();
@@ -13,23 +13,38 @@ document.addEventListener('DOMContentLoaded', () => {
 // 1. LIVE BACKEND HEALTH CHECK & STATUS BADGE
 async function checkBackendHealth() {
     const badge = document.getElementById('apiStatusBadge');
-    try {
-        const res = await fetch(`${API_BASE_URL}/`);
-        const data = await res.json();
-        if (data.status === 'ok') {
-            if (badge) {
-                badge.className = 'status-badge success';
-                badge.style.background = 'rgba(34, 197, 94, 0.15)';
-                badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
-                badge.style.color = '#22c55e';
-                badge.innerHTML = '🟢 LIVE API CONNECTED (localhost:8000)';
+    
+    // Try 127.0.0.1 first, then fallback to localhost
+    const hosts = ['http://127.0.0.1:8000', 'http://localhost:8000'];
+    let connected = false;
+
+    for (const host of hosts) {
+        try {
+            const res = await fetch(`${host}/`);
+            const data = await res.json();
+            if (data.status === 'ok') {
+                API_BASE_URL = host;
+                connected = true;
+                if (badge) {
+                    badge.className = 'status-badge success';
+                    badge.style.background = 'rgba(34, 197, 94, 0.15)';
+                    badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                    badge.style.color = '#22c55e';
+                    badge.innerHTML = `🟢 LIVE API CONNECTED (${host.replace('http://','')})`;
+                }
+                break;
             }
+        } catch (e) {
+            // try next
         }
-    } catch (e) {
-        if (badge) {
-            badge.className = 'status-badge warning';
-            badge.innerHTML = '🟡 SIMULATOR MODE (API Offline)';
-        }
+    }
+
+    if (!connected && badge) {
+        badge.className = 'status-badge warning';
+        badge.style.background = 'rgba(234, 179, 8, 0.15)';
+        badge.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+        badge.style.color = '#eab308';
+        badge.innerHTML = '🟡 SIMULATOR MODE (API Offline)';
     }
 }
 
@@ -128,7 +143,7 @@ function initInteractiveEvents() {
                 const data = await res.json();
                 const totalLat = performance.now() - t0;
 
-                alert(`⚡ LIVE BACKEND RESPONSE (http://localhost:8000/predict)\n\n` +
+                alert(`⚡ LIVE BACKEND RESPONSE (${API_BASE_URL}/predict)\n\n` +
                       `• Prediction Class: ${data.prediction} (${data.prediction === 1 ? 'Repeat Buyer' : 'Churn Risk'})\n` +
                       `• Probability:       ${(data.confidence * 100).toFixed(1)}%\n` +
                       `• Execution Source: ${data.source.toUpperCase()}\n` +
