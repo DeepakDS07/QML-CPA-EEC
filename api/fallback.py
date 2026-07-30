@@ -15,9 +15,11 @@ class GracefulFallback:
         confidence = 0.0
         
         try:
-            if hasattr(self.quantum_model, 'predict'):
+            if hasattr(self.quantum_model, 'predict_with_prob'):
+                prediction, confidence = self.quantum_model.predict_with_prob(features)
+            elif hasattr(self.quantum_model, 'predict'):
                 prediction = self.quantum_model.predict(features)
-                confidence = 0.85
+                confidence = 0.50
             else:
                 raise Exception("Quantum model predict method not found")
                 
@@ -28,11 +30,14 @@ class GracefulFallback:
         except Exception as e:
             self.logger.warning(f"Quantum model failed: {str(e)}. Falling back to classical.")
             source = 'classical_fallback'
-            if hasattr(self.classical_model, 'predict'):
+            if hasattr(self.classical_model, 'predict_with_prob'):
+                prediction, confidence = self.classical_model.predict_with_prob(features)
+            elif hasattr(self.classical_model, 'predict'):
                 prediction = self.classical_model.predict(features)
-                confidence = 0.90
+                confidence = 0.50
             else:
                 prediction = 0
+                confidence = 0.50
                 
         latency_ms = (time.time() - start_time) * 1000
         

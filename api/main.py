@@ -31,12 +31,16 @@ class RealQuantumModelWrapper:
                 pass
         self.model.eval()
 
-    def predict(self, features):
+    def predict_with_prob(self, features):
         if self.model is not None:
             features_arr = np.array([features], dtype=np.float32)
             preds, probs = predict_hybrid_qnn(self.model, features_arr)
-            return int(preds[0])
-        return 1
+            return int(preds[0]), float(probs[0])
+        return 1, 0.50
+
+    def predict(self, features):
+        pred, _ = self.predict_with_prob(features)
+        return pred
 
 class RealClassicalModelWrapper:
     def __init__(self):
@@ -49,12 +53,16 @@ class RealClassicalModelWrapper:
                 pass
         self.model.eval()
 
-    def predict(self, features):
+    def predict_with_prob(self, features):
         if self.model is not None:
             features_arr = np.array([features], dtype=np.float32)
             preds, probs = predict_classical_mlp(self.model, features_arr)
-            return int(preds[0])
-        return 1
+            return int(preds[0]), float(probs[0])
+        return 1, 0.50
+
+    def predict(self, features):
+        pred, _ = self.predict_with_prob(features)
+        return pred
 
 import numpy as np
 quantum_model = RealQuantumModelWrapper()
