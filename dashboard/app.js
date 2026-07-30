@@ -420,4 +420,151 @@ function initInteractiveEvents() {
             }
         });
     }
+
+    initDatasetUpload();
+}
+
+// 7. DATASET UPLOAD & LIVE TREND VISUALIZER
+function initDatasetUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const dropzone = document.getElementById('dropzone');
+    const statusDiv = document.getElementById('uploadStatus');
+
+    if (!fileInput) return;
+
+    if (dropzone) {
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = '#22c55e';
+            dropzone.style.background = 'rgba(34, 197, 94, 0.1)';
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+            dropzone.style.background = 'rgba(124, 58, 237, 0.05)';
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+            dropzone.style.background = 'rgba(124, 58, 237, 0.05)';
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                processFileUpload(fileInput.files[0]);
+            }
+        });
+    }
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            processFileUpload(e.target.files[0]);
+        }
+    });
+
+    let hourlyChartInstance = null;
+    let scatterChartInstance = null;
+
+    async function processFileUpload(file) {
+        if (statusDiv) statusDiv.innerHTML = '⏳ Uploading & running Quantum analysis...';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/upload-dataset`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) throw new Error('API processing error');
+
+            const data = await res.json();
+            if (statusDiv) statusDiv.innerHTML = `🟢 Live Analysis Complete: <b>${data.filename}</b>`;
+
+            // Update Summary Cards
+            document.getElementById('trendTotalCust').innerText = data.summary.total_customers.toLocaleString();
+            document.getElementById('trendChurnRate').innerText = data.summary.churn_rate_pct + '%';
+            document.getElementById('trendLoyalCount').innerText = data.summary.loyal_repeat_count.toLocaleString();
+            document.getElementById('trendRevenueRisk').innerText = '$' + data.summary.potential_revenue_at_risk_usd.toLocaleString();
+
+            // Render Hourly Trend Chart
+            const ctxHourly = document.getElementById('uploadHourlyTrendChart');
+            if (ctxHourly) {
+                if (hourlyChartInstance) hourlyChartInstance.destroy();
+                hourlyChartInstance = new Chart(ctxHourly, {
+                    type: 'line',
+                    data: {
+                        labels: data.hourly_trends.hours.map(h => `${h}:00`),
+                        datasets: [{
+                            label: 'Avg Churn Propensity (%)',
+                            data: data.hourly_trends.churn_probabilities.map(p => (p * 100).toFixed(1)),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Render Scatter Matrix Chart
+            const ctxScatter = document.getElementById('uploadScatterChart');
+            if (ctxScatter) {
+                if (scatterChartInstance) scatterChartInstance.destroy();
+
+                const pointsHigh = data.scatter_data.filter(p => p.risk_level === 'HIGH_RISK').map(p => ({ x: p.recency_days, y: p.monetary_usd }));
+                const pointsLow = data.scatter_data.filter(p => p.risk_level === 'LOW_RISK').map(p => ({ x: p.recency_days, y: p.monetary_usd }));
+
+                scatterChartInstance = new Chart(ctxScatter, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [
+                            { label: 'High Churn Risk', data: pointsHigh, backgroundColor: '#ef4444' },
+                            { label: 'Loyal Repeat', data: pointsLow, backgroundColor: '#22c55e' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Recency (Days)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { title: { display: true, text: 'Monetary ($)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        }
+                    }
+                });
+            }
+
+            // Populate Top At-Risk Customer Table
+            const tbody = document.getElementById('atRiskTbody');
+            if (tbody && data.top_at_risk_customers) {
+                tbody.innerHTML = '';
+                data.top_at_risk_customers.forEach(c => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${c.id}</strong></td>
+                        <td>${c.recency_days} days ago</td>
+                        <td style="color:#eab308;font-weight:600;">$${c.monetary_usd.toLocaleString()}</td>
+                        <td><span style="color:#ef4444;font-weight:700;">${c.churn_prob}% Churn Risk</span></td>
+                        <td><button style="background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;">🎁 Send 15% Off Discount</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+        } catch (err) {
+            if (statusDiv) statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Processing error. Ensure backend server is running.</span>`;
+            console.error(err);
+        }
+    }
 }

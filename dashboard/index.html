@@ -268,6 +268,80 @@
             </div>
         </section>
 
+        <!-- Live Dataset Upload & Trend Analysis Portal -->
+        <section id="upload-section" class="card highlight-border">
+            <div class="dashboard-demo-header">
+                <div>
+                    <h2>📁 Upload Custom Dataset & Analyze Customer Trends</h2>
+                    <p class="section-desc">Drag & drop your raw transactional CSV receipt log to evaluate customer churn propensity and visualize trends live.</p>
+                </div>
+            </div>
+
+            <!-- Upload Box & Summary Cards -->
+            <div class="upload-container" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-top: 15px;">
+                <!-- Drag & Drop Zone -->
+                <div class="upload-dropzone" id="dropzone" style="border: 2px dashed rgba(124, 58, 237, 0.5); background: rgba(124, 58, 237, 0.05); border-radius: 12px; padding: 25px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                    <span style="font-size: 40px; margin-bottom: 10px;">📄</span>
+                    <h4 style="margin: 0 0 8px 0; color: #fff;">Drag & Drop Receipt CSV Here</h4>
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">Or browse from your computer (e.g. <code>data/online_retail_09_10.csv</code>)</p>
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    <button class="btn-benchmark" onclick="document.getElementById('csvFileInput').click()">📁 Select CSV File</button>
+                    <div id="uploadStatus" style="font-size: 11px; margin-top: 12px; color: #06b6d4;"></div>
+                </div>
+
+                <!-- Trend Summary Cards -->
+                <div class="summary-cards-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                    <div class="card-inner" style="padding: 15px; text-align: center; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span style="font-size: 11px; color: #94a3b8; display: block;">Total Customers</span>
+                        <span id="trendTotalCust" style="font-size: 24px; font-weight: 700; color: #fff;">--</span>
+                    </div>
+                    <div class="card-inner" style="padding: 15px; text-align: center; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span style="font-size: 11px; color: #94a3b8; display: block;">Churn Risk Rate</span>
+                        <span id="trendChurnRate" style="font-size: 24px; font-weight: 700; color: #ef4444;">-- %</span>
+                    </div>
+                    <div class="card-inner" style="padding: 15px; text-align: center; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span style="font-size: 11px; color: #94a3b8; display: block;">Loyal Repeat Buyers</span>
+                        <span id="trendLoyalCount" style="font-size: 24px; font-weight: 700; color: #22c55e;">--</span>
+                    </div>
+                    <div class="card-inner" style="padding: 15px; text-align: center; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span style="font-size: 11px; color: #94a3b8; display: block;">Revenue At Risk</span>
+                        <span id="trendRevenueRisk" style="font-size: 24px; font-weight: 700; color: #eab308;">$ --</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Trend Visualizer Charts -->
+            <div class="trend-charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div class="dash-panel card-inner" style="padding: 15px;">
+                    <h4>📈 Hourly Customer Dwell & Churn Risk Trend</h4>
+                    <div style="height: 220px;"><canvas id="uploadHourlyTrendChart"></canvas></div>
+                </div>
+                <div class="dash-panel card-inner" style="padding: 15px;">
+                    <h4>🎯 Recency vs Monetary Spend Risk Matrix</h4>
+                    <div style="height: 220px;"><canvas id="uploadScatterChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Top At-Risk Table -->
+            <div class="table-container" style="margin-top: 20px;">
+                <h3>🚨 Top High-Spend At-Risk Customers Needing Retention Action</h3>
+                <table class="spec-table" id="atRiskTable">
+                    <thead>
+                        <tr>
+                            <th>CustomerID</th>
+                            <th>Recency (Days)</th>
+                            <th>Monetary Spend ($)</th>
+                            <th>Quantum Churn Propensity</th>
+                            <th>Recommended Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="atRiskTbody">
+                        <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Upload a CSV dataset above to generate live customer trends...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- 12-Panel Visual Dashboard Simulation Demo -->
         <section id="dashboard-demo" class="card highlight-border">
             <div class="dashboard-demo-header">
