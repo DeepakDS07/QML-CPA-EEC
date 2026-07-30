@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  quantum-analytics:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./saved_models:/app/saved_models
+      - ./results:/app/results

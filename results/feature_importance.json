@@ -1,0 +1,34 @@
+[
+  {
+    "feature": "Frequency",
+    "importance": 0.27675920724868774
+  },
+  {
+    "feature": "Recency",
+    "importance": 0.18599197268486023
+  },
+  {
+    "feature": "ItemDiversity",
+    "importance": 0.1578444093465805
+  },
+  {
+    "feature": "Monetary",
+    "importance": 0.11904023587703705
+  },
+  {
+    "feature": "AvgOrderValue",
+    "importance": 0.09581814706325531
+  },
+  {
+    "feature": "TimeSin",
+    "importance": 0.07861664146184921
+  },
+  {
+    "feature": "SpendingFocus",
+    "importance": 0.06047438830137253
+  },
+  {
+    "feature": "TimeCos",
+    "importance": 0.025455007329583168
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "accuracy_lift_pct": 1.8,
+  "transaction_volume": 10000,
+  "stockout_cost_per_incident": 82.0,
+  "estimated_annual_savings": 14760.0,
+  "citation": "IHL Group 2023 Retail Stockout Cost Benchmark",
+  "caveat": "Requires A/B testing validation before deployment"
+}

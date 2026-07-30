@@ -1,0 +1,13 @@
+pennylane>=0.39
+torch>=2.0
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+fpdf2
+fastapi
+uvicorn
+python-multipart
+xgboost
+lightgbm

@@ -1,0 +1,8 @@
+{
+  "normal_acc_mlp": 0.854,
+  "normal_acc_qnn": 0.872,
+  "ood_acc_mlp": 0.782,
+  "ood_acc_qnn": 0.841,
+  "mlp_drop_pct": 7.2,
+  "qnn_drop_pct": 3.1
+}

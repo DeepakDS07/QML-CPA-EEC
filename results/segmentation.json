@@ -1,0 +1,62 @@
+{
+  "silhouette_classical": 0.24739548691881338,
+  "silhouette_quantum": 0.27111918213521513,
+  "clusters": [
+    {
+      "cluster_id": 0,
+      "count": 24,
+      "features": {
+        "Recency": 0.39211919910046555,
+        "Frequency": 0.7371719603818153,
+        "Monetary": 0.48448559079083214,
+        "AvgOrderValue": 1.3158772766493132,
+        "ItemDiversity": 0.7467005243175383,
+        "SpendingFocus": 0.23701007326181753,
+        "TimeSin": 3.010921986159555,
+        "TimeCos": 1.870185799536886
+      }
+    },
+    {
+      "cluster_id": 1,
+      "count": 28,
+      "features": {
+        "Recency": 0.33633937912200607,
+        "Frequency": 0.803113911444007,
+        "Monetary": 0.7153856731628087,
+        "AvgOrderValue": 1.9036092337359967,
+        "ItemDiversity": 0.9346116590544247,
+        "SpendingFocus": 0.367546118934923,
+        "TimeSin": 0.32134305851596606,
+        "TimeCos": 1.2598437387949377
+      }
+    },
+    {
+      "cluster_id": 2,
+      "count": 23,
+      "features": {
+        "Recency": 0.1887814742879668,
+        "Frequency": 0.8770579032905141,
+        "Monetary": 0.7705649496302429,
+        "AvgOrderValue": 1.948445034247531,
+        "ItemDiversity": 0.9349012417688847,
+        "SpendingFocus": 0.419702255190041,
+        "TimeSin": 1.569591724738124,
+        "TimeCos": 2.952552503995662
+      }
+    },
+    {
+      "cluster_id": 3,
+      "count": 25,
+      "features": {
+        "Recency": 0.21437752426674359,
+        "Frequency": 0.8664181844637114,
+        "Monetary": 0.4613652428178916,
+        "AvgOrderValue": 1.042002968275269,
+        "ItemDiversity": 0.6964808339864339,
+        "SpendingFocus": 0.19530953827627814,
+        "TimeSin": 2.0001522003570353,
+        "TimeCos": 0.20690014356317238
+      }
+    }
+  ]
+}
