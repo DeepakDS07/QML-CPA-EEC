@@ -8,11 +8,13 @@ from api.fallback import GracefulFallback
 
 app = FastAPI(title="Quantum ML Consumer Analytics API")
 
+import asyncio
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000", "http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -104,18 +106,18 @@ def health_check():
     return {"status": "ok"}
 
 @app.post("/predict")
-def predict(req: PredictionRequest):
+async def predict(req: PredictionRequest):
     if req.simulator_type == "noisy":
         t0 = torch.cuda.Event(enable_timing=True) if torch.cuda.is_available() else None
         start_t = os.times().user
-        pred, prob = noisy_quantum_model.predict_with_prob(req.features)
+        pred, prob = await asyncio.to_thread(noisy_quantum_model.predict_with_prob, req.features)
         return {
             "prediction": pred,
             "confidence": prob,
             "source": "quantum_noisy_nisq",
             "latency_ms": 14.5
         }
-    return fallback_system.predict(req.features)
+    return await fallback_system.predict(req.features)
 
 def load_json(filename):
     path = os.path.join("results", filename)
@@ -183,10 +185,12 @@ import io
 async def upload_dataset(file: UploadFile = File(...), simulator_type: str = Form("ideal")):
     try:
         content = await file.read()
-        df = pd.read_csv(io.BytesIO(content))
+        # Non-blocking file reading
+        df = await asyncio.to_thread(pd.read_csv, io.BytesIO(content))
         
         from preprocessing.feature_engine import engineer_features
-        X_tr, _, _, _, _, _, raw_df = engineer_features(df, seed=42)
+        # Non-blocking feature engineering
+        X_tr, _, _, _, _, _, raw_df = await asyncio.to_thread(engineer_features, df, seed=42)
         
         # Run Quantum predictions on engineered customer features
         num_samples = min(200, len(X_tr))
@@ -200,9 +204,9 @@ async def upload_dataset(file: UploadFile = File(...), simulator_type: str = For
         for i in range(num_samples):
             row = sample_X[i]
             if simulator_type == "noisy":
-                pred, prob = noisy_quantum_model.predict_with_prob(row)
+                pred, prob = await asyncio.to_thread(noisy_quantum_model.predict_with_prob, row)
             else:
-                res = fallback_system.predict(row)
+                res = await fallback_system.predict(row)
                 pred, prob = res['prediction'], res['confidence']
             
             preds.append(pred)

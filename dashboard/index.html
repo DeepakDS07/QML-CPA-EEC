@@ -38,6 +38,12 @@
         </nav>
     </header>
 
+    <!-- Synthetic Data Disclaimer -->
+    <div style="background-color: #fef08a; color: #854d0e; padding: 10px; text-align: center; font-size: 0.9rem; font-weight: 500;">
+        ⚠️ <strong>Hackathon Prototype Disclaimer:</strong> The underlying ML models are currently trained on synthetic proxy distributions. See <code>fetch_real_uci.py</code> to download real sparse retail data for production fine-tuning.
+    </div>
+
+    <!-- Main Content -->
     <main class="container">
 
         <!-- Page Header -->
@@ -271,7 +277,7 @@
             </table>
         </section>
 
-        <!-- 4. SLA Architecture -->
+        <!-- 4. Production SLA & Architecture -->
         <section id="architecture-section" class="card">
             <div class="card-header">
                 <h2>Production SLA & Fallback Architecture</h2>
@@ -307,11 +313,69 @@
 
     </main>
 
+    <!-- Interactive Retention Coupon Simulator Modal -->
+    <div id="couponModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Retention Offer Simulator</h3>
+                <button class="modal-close" onclick="closeCouponModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <span class="modal-label">Customer ID:</span>
+                    <span id="mCustId" class="modal-val">CUST-1001</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Historical Spend:</span>
+                    <span id="mSpend" class="modal-val">$0.00</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Current Churn Risk:</span>
+                    <span id="mRisk" class="modal-val text-danger">0.0%</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Expected Value Lost:</span>
+                    <span id="mLost" class="modal-val text-warning">$0.00</span>
+                </div>
+
+                <hr class="modal-divider">
+
+                <div class="coupon-option-group">
+                    <label class="modal-label">Select Discount Offer:</label>
+                    <div class="coupon-buttons">
+                        <button class="coupon-btn active" data-discount="10" onclick="selectDiscount(10)">10% Off</button>
+                        <button class="coupon-btn" data-discount="15" onclick="selectDiscount(15)">15% Off</button>
+                        <button class="coupon-btn" data-discount="20" onclick="selectDiscount(20)">20% Off</button>
+                    </div>
+                </div>
+
+                <div class="sim-result-box">
+                    <div class="sim-metric">
+                        <span class="sim-label">New Churn Risk:</span>
+                        <span id="mNewRisk" class="sim-val text-success">0.0%</span>
+                    </div>
+                    <div class="sim-metric">
+                        <span class="sim-label">Discount Cost:</span>
+                        <span id="mDiscountCost" class="sim-val">$0.00</span>
+                    </div>
+                    <div class="sim-metric highlight">
+                        <span class="sim-label">Net Revenue Protected:</span>
+                        <span id="mNetSaved" class="sim-val text-success font-bold">+$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeCouponModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmCouponStrategy()">Apply Offer Strategy</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <p>Customer Retention Dashboard — Built with PennyLane, PyTorch & FastAPI</p>
     </footer>
 
     <!-- App Logic -->
-    <script src="app.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

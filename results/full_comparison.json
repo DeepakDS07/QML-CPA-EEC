@@ -56,7 +56,7 @@
     "auc": 0.9399332591768631,
     "params": 57,
     "type": "quantum",
-    "time_s": 27.84
+    "time_s": 12.33
   },
   "Hybrid QNN (Noisy 1%)": {
     "accuracy": 0.6166666666666667,
