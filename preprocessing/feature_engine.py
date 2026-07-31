@@ -126,7 +126,7 @@ def engineer_features(df, test_size=0.2, seed=42):
     X_train_scaled = np.clip(minmax.fit_transform(X_train_std), 0.0, np.pi)
     X_test_scaled = np.clip(minmax.transform(X_test_std), 0.0, np.pi)
 
-    return X_train_scaled, X_test_scaled, y_train, y_test, scaler, minmax
+    return X_train_scaled, X_test_scaled, y_train, y_test, scaler, minmax, data
 
 if __name__ == '__main__':
     df = load_dataset('uci')

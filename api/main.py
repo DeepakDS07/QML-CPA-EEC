@@ -186,76 +186,78 @@ async def upload_dataset(file: UploadFile = File(...), simulator_type: str = For
         df = pd.read_csv(io.BytesIO(content))
         
         from preprocessing.feature_engine import engineer_features
-        X_tr, _, _, _, _, _ = engineer_features(df, seed=42)
+        X_tr, _, _, _, _, _, raw_df = engineer_features(df, seed=42)
         
-        # Detect Customer ID column
-        cust_col = [c for c in df.columns if 'customer' in c.lower() or 'user' in c.lower() or 'id' in c.lower()]
-        cust_ids = df[cust_col[0]].dropna().astype(str).unique() if cust_col else [f"CUST-{1000+i}" for i in range(len(X_tr))]
+        # Run Quantum predictions on engineered customer features
+        num_samples = min(200, len(X_tr))
+        sample_X = X_tr[:num_samples]
+        sample_raw = raw_df.iloc[:num_samples].copy() if len(raw_df) >= num_samples else raw_df.copy()
         
-        # Detect Invoice Date / Timestamp column for genuine hourly trends
-        date_col = [c for c in df.columns if 'date' in c.lower() or 'time' in c.lower()]
-        hours_distribution = {h: [] for h in range(24)}
-        
-        if date_col:
-            try:
-                dates = pd.to_datetime(df[date_col[0]], errors='coerce')
-                hours = dates.dt.hour.dropna().astype(int).values
-                for idx, h in enumerate(hours[:len(X_tr)]):
-                    hours_distribution[h % 24].append(idx)
-            except Exception:
-                pass
-
-        # Run Quantum predictions on uploaded dataset (up to 200 samples)
-        sample_X = X_tr[:min(200, len(X_tr))]
         preds = []
-        probs = []
+        confidences = []
+        churn_probs = []
         
-        for row in sample_X:
+        for i in range(num_samples):
+            row = sample_X[i]
             if simulator_type == "noisy":
                 pred, prob = noisy_quantum_model.predict_with_prob(row)
-                preds.append(pred)
-                probs.append(prob)
             else:
                 res = fallback_system.predict(row)
-                preds.append(res['prediction'])
-                probs.append(res['confidence'])
+                pred, prob = res['prediction'], res['confidence']
+            
+            preds.append(pred)
+            confidences.append(prob)
+            
+            # Correct Churn Risk Probability:
+            # If pred == 0 (Churner), prob is confidence in churn
+            # If pred == 1 (Loyal), 1.0 - prob is churn probability
+            c_risk = prob if pred == 0 else (1.0 - prob)
+            c_risk = float(np.clip(c_risk, 0.05, 0.95))
+            churn_probs.append(c_risk)
             
         preds = np.array(preds)
-        probs = np.array(probs)
+        churn_probs = np.array(churn_probs)
         
         total_customers = len(preds)
         churn_count = int(np.sum(preds == 0))
         loyal_count = int(np.sum(preds == 1))
         churn_rate = float(churn_count / total_customers * 100) if total_customers > 0 else 0.0
         
-        # Compute genuine average churn risk per purchase hour (0..23)
+        # Compute genuine average churn risk per purchase hour (0..23) directly from raw_df
         hours = list(range(24))
         hourly_churn = []
-        for h in hours:
-            indices = hours_distribution[h]
-            if len(indices) > 0:
-                h_probs = [1.0 - probs[idx % len(probs)] for idx in indices]
-                hourly_churn.append(float(round(np.mean(h_probs), 3)))
-            else:
-                hourly_churn.append(float(round(np.clip(0.35 + 0.15 * np.sin(2 * np.pi * h / 24), 0.1, 0.9), 3)))
+        
+        if 'MeanHour' in sample_raw.columns:
+            sample_raw['HourBin'] = sample_raw['MeanHour'].fillna(12).astype(int) % 24
+            sample_raw['ChurnRisk'] = churn_probs
+            
+            grouped_hours = sample_raw.groupby('HourBin')['ChurnRisk'].mean().to_dict()
+            for h in hours:
+                hourly_churn.append(float(round(grouped_hours.get(h, 0.0), 3)))
+        else:
+            for h in hours:
+                hourly_churn.append(float(round(np.mean(churn_probs), 3)))
         
         # Genuine Recency vs Monetary scatter points & Expected Value Lost
         scatter_points = []
         total_value_at_risk = 0.0
 
         for i in range(min(50, total_customers)):
-            cid = str(cust_ids[i % len(cust_ids)])
+            row_raw = sample_raw.iloc[i]
+            
+            # Extract real Customer ID
+            cid = str(row_raw.get('CustomerID', f"CUST-{1000+i}"))
             if not cid.startswith("CUST-") and cid.replace('.0','').isdigit():
                 cid = f"CUST-{cid.replace('.0','')}"
                 
-            rec = float(sample_X[i, 0] * 30.0) # unscale recency approx
-            mon = float(sample_X[i, 2] * 500.0) # unscale monetary approx
-            prob = float(probs[i])
-            churn_risk_prob = (1.0 - prob) if preds[i] == 0 else (1.0 - prob)
-            churn_risk_prob = float(np.clip(churn_risk_prob, 0.10, 0.95))
+            # Extract REAL unscaled Recency (days) and REAL unscaled Monetary ($)
+            rec = float(row_raw.get('Recency', sample_X[i, 0] * 30.0))
+            mon = float(row_raw.get('Monetary', sample_X[i, 2] * 500.0))
             
-            # Expected Value Lost = Spend * Churn Risk Prob
-            value_lost = round(mon * churn_risk_prob, 2)
+            c_risk = float(churn_probs[i])
+            
+            # Expected Value Lost = Real Monetary Spend * Real Churn Risk Prob
+            value_lost = round(mon * c_risk, 2)
             total_value_at_risk += value_lost
             risk = "HIGH_RISK" if preds[i] == 0 else "LOW_RISK"
             
@@ -263,7 +265,7 @@ async def upload_dataset(file: UploadFile = File(...), simulator_type: str = For
                 "id": cid,
                 "recency_days": round(rec, 1),
                 "monetary_usd": round(mon, 2),
-                "churn_prob": round(churn_risk_prob * 100, 1),
+                "churn_prob": round(c_risk * 100, 1),
                 "expected_value_lost_usd": value_lost,
                 "risk_level": risk
             })
