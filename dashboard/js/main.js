@@ -85,12 +85,38 @@ function initDatasetUpload() {
     if (!fileInput) return;
 
     if (dropzone) {
-        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); });
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.style.borderColor = '#22c55e';
+                dropzone.style.background = 'rgba(34, 197, 94, 0.08)';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.style.borderColor = 'rgba(124, 58, 237, 0.4)';
+                dropzone.style.background = 'rgba(124, 58, 237, 0.04)';
+            }, false);
+        });
+
         dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                processFileUpload(fileInput.files[0]);
+            const dt = e.dataTransfer;
+            const files = dt ? dt.files : null;
+            if (files && files.length > 0) {
+                processFileUpload(files[0]);
+            }
+        }, false);
+
+        dropzone.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                fileInput.click();
             }
         });
     }
@@ -100,15 +126,15 @@ function initDatasetUpload() {
     });
 
     async function processFileUpload(file) {
-        if (statusDiv) statusDiv.innerHTML = '⏳ Uploading dataset & calculating quantum trends...';
+        if (statusDiv) statusDiv.innerHTML = `⏳ Processing <b>${file.name}</b> & calculating quantum customer trends...`;
         const simType = document.getElementById('simulatorToggle') ? document.getElementById('simulatorToggle').value : 'ideal';
         
         try {
             const data = await uploadDataset(file, simType);
             renderDashboard(data);
         } catch (err) {
-            if (statusDiv) statusDiv.innerHTML = `<span style="color:#ef4444;">❌ Processing error. Ensure backend server is running.</span>`;
-            console.error(err);
+            if (statusDiv) statusDiv.innerHTML = `<span style="color:#ef4444;">❌ File Processing Error: ${err.message || 'Ensure backend server is running on port 8000.'}</span>`;
+            console.error('File Upload Error:', err);
         }
     }
 }

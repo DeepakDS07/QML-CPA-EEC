@@ -181,12 +181,18 @@ from fastapi import UploadFile, File, Form
 import pandas as pd
 import io
 
+def safe_read_csv(content_bytes):
+    try:
+        return pd.read_csv(io.BytesIO(content_bytes))
+    except Exception:
+        return pd.read_csv(io.BytesIO(content_bytes), encoding='ISO-8859-1', on_bad_lines='skip')
+
 @app.post("/upload-dataset")
 async def upload_dataset(file: UploadFile = File(...), simulator_type: str = Form("ideal")):
     try:
         content = await file.read()
-        # Non-blocking file reading
-        df = await asyncio.to_thread(pd.read_csv, io.BytesIO(content))
+        # Non-blocking file reading with robust encoding fallback
+        df = await asyncio.to_thread(safe_read_csv, content)
         
         from preprocessing.feature_engine import engineer_features
         # Non-blocking feature engineering
