@@ -1,25 +1,25 @@
 /* ==========================================================================
-   MINIMALIST ENTERPRISE SAAS DESIGN SYSTEM (Linear / Resend / Vercel Style)
+   HUMAN ENTERPRISE DESIGN SYSTEM (Stripe / GitHub Clean Enterprise Theme)
    ========================================================================== */
 
 :root {
-    --bg-main: #0c0e14;
-    --bg-card: #141822;
-    --bg-card-hover: #1b202e;
-    --bg-subtle: #191e2b;
-    --border-color: #1f2636;
-    --border-accent: rgba(124, 58, 237, 0.3);
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-subtle: #f1f5f9;
+    --border-color: #e2e8f0;
+    --border-dark: #cbd5e1;
     
-    --text-main: #f3f4f6;
-    --text-muted: #8c96a8;
-    --text-dim: #5a6474;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #64748b;
     
-    --primary: #7c3aed;
-    --primary-hover: #6d28d9;
-    --cyan: #0284c7;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    
+    --nav-bg: #0f172a;
 }
 
 * {
@@ -46,9 +46,9 @@ code, .mono-val, .console-box {
     justify-content: space-between;
     align-items: center;
     padding: 14px 32px;
-    background: rgba(20, 24, 34, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    background: var(--nav-bg);
+    color: #ffffff;
+    border-bottom: 1px solid #1e293b;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -63,15 +63,15 @@ code, .mono-val, .console-box {
 .logo-mark {
     width: 10px;
     height: 10px;
-    background: var(--primary);
+    background: #38bdf8;
     border-radius: 50%;
-    box-shadow: 0 0 8px var(--primary);
 }
 
 .title-main {
     font-weight: 700;
     font-size: 15px;
     letter-spacing: -0.01em;
+    color: #ffffff;
 }
 
 .nav-links {
@@ -81,7 +81,7 @@ code, .mono-val, .console-box {
 }
 
 .nav-links a {
-    color: var(--text-muted);
+    color: #94a3b8;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -89,7 +89,7 @@ code, .mono-val, .console-box {
 }
 
 .nav-links a:hover {
-    color: var(--text-main);
+    color: #ffffff;
 }
 
 .status-badge {
@@ -97,17 +97,17 @@ code, .mono-val, .console-box {
     border-radius: 6px;
     font-size: 11px;
     font-weight: 600;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.25);
-    color: var(--warning);
+    background: rgba(217, 119, 6, 0.15);
+    border: 1px solid rgba(217, 119, 6, 0.3);
+    color: #fbbf24;
 }
 
 .select-input {
     padding: 5px 10px;
     font-size: 11px;
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #f8fafc;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
@@ -129,6 +129,7 @@ code, .mono-val, .console-box {
     font-size: 24px;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: var(--text-main);
     margin-bottom: 6px;
 }
 
@@ -143,8 +144,9 @@ code, .mono-val, .console-box {
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .card-header {
@@ -152,9 +154,10 @@ code, .mono-val, .console-box {
 }
 
 .card-header h2 {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     letter-spacing: -0.01em;
+    color: var(--text-main);
     margin-bottom: 2px;
 }
 
@@ -177,9 +180,9 @@ code, .mono-val, .console-box {
 }
 
 .upload-dropzone {
-    border: 1px dashed var(--border-color);
+    border: 1px dashed var(--border-dark);
     background: var(--bg-subtle);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 20px;
     text-align: center;
     display: flex;
@@ -191,6 +194,7 @@ code, .mono-val, .console-box {
 .upload-dropzone h4 {
     font-size: 13px;
     font-weight: 600;
+    color: var(--text-main);
     margin-bottom: 4px;
 }
 
@@ -210,7 +214,8 @@ code, .mono-val, .console-box {
 .status-msg {
     font-size: 11px;
     margin-top: 8px;
-    color: var(--cyan);
+    color: var(--primary);
+    font-weight: 500;
 }
 
 .kpi-grid {
@@ -232,6 +237,7 @@ code, .mono-val, .console-box {
     color: var(--text-muted);
     display: block;
     margin-bottom: 4px;
+    font-weight: 500;
 }
 
 .kpi-val {
@@ -252,7 +258,7 @@ code, .mono-val, .console-box {
 }
 
 .chart-box {
-    background: var(--bg-subtle);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 16px;
@@ -292,25 +298,27 @@ code, .mono-val, .console-box {
     justify-content: space-between;
     font-size: 12px;
     font-weight: 500;
+    color: var(--text-main);
     margin-bottom: 6px;
 }
 
 .slider-group span {
     font-family: 'JetBrains Mono', monospace;
-    color: var(--cyan);
+    color: var(--primary);
+    font-weight: 600;
 }
 
 input[type=range] {
     width: 100%;
     height: 5px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border-dark);
     accent-color: var(--primary);
     cursor: pointer;
 }
 
 .result-box {
-    background: var(--bg-subtle);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 18px;
@@ -331,13 +339,13 @@ input[type=range] {
 }
 
 .source-tag {
-    padding: 2px 6px;
+    padding: 2px 8px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 600;
-    background: rgba(124, 58, 237, 0.15);
-    color: #a78bfa;
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: #eff6ff;
+    color: var(--primary);
+    border: 1px solid #bfdbfe;
 }
 
 .result-val {
@@ -350,7 +358,7 @@ input[type=range] {
 .progress-bar-bg {
     width: 100%;
     height: 5px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--border-color);
     border-radius: 3px;
     margin: 6px 0 8px 0;
     overflow: hidden;
@@ -380,16 +388,16 @@ input[type=range] {
     margin-top: 10px;
     width: 100%;
     text-align: left;
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
+    background: #0f172a;
+    border: 1px solid #1e293b;
     border-radius: 4px;
     padding: 8px;
     font-size: 10px;
-    color: var(--text-muted);
+    color: #94a3b8;
 }
 
 .console-header {
-    color: var(--text-dim);
+    color: #64748b;
     margin-bottom: 2px;
     font-weight: 600;
 }
@@ -397,39 +405,34 @@ input[type=range] {
 /* Buttons */
 .btn-primary {
     background: var(--primary);
-    color: #fff;
+    color: #ffffff;
     border: none;
     padding: 8px 14px;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s;
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
 }
 
-.btn-primary:active {
-    transform: scale(0.98);
-}
-
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-muted);
-    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-main);
+    background: var(--bg-subtle);
 }
 
 .full-width {
@@ -451,9 +454,9 @@ input[type=range] {
 .search-input {
     padding: 5px 10px;
     font-size: 12px;
-    background: var(--bg-main);
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    color: #fff;
+    color: var(--text-main);
     border-radius: 6px;
     width: 200px;
     outline: none;
@@ -472,7 +475,7 @@ input[type=range] {
 .data-table th {
     text-align: left;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-subtle);
     color: var(--text-muted);
     font-weight: 600;
     border-bottom: 1px solid var(--border-color);
@@ -484,7 +487,7 @@ input[type=range] {
 }
 
 .highlight-row {
-    background: rgba(124, 58, 237, 0.05);
+    background: #f0f9ff;
 }
 
 .tag {
@@ -494,8 +497,8 @@ input[type=range] {
     font-weight: 600;
 }
 
-.tag-quantum { background: rgba(124, 58, 237, 0.15); color: #a78bfa; }
-.tag-classical { background: rgba(2, 132, 199, 0.15); color: #38bdf8; }
+.tag-quantum { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; }
+.tag-classical { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-color); }
 
 .empty-msg {
     text-align: center;
@@ -511,7 +514,7 @@ input[type=range] {
 .tab-btn {
     padding: 4px 8px;
     font-size: 11px;
-    background: rgba(255, 255, 255, 0.04);
+    background: #ffffff;
     color: var(--text-muted);
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -520,7 +523,7 @@ input[type=range] {
 
 .tab-btn.active {
     background: var(--primary);
-    color: #fff;
+    color: #ffffff;
     border-color: var(--primary);
 }
 
@@ -540,8 +543,8 @@ input[type=range] {
     text-align: center;
 }
 
-.sla-box.sla-success { border-color: rgba(16, 185, 129, 0.3); }
-.sla-box.sla-warning { border-color: rgba(245, 158, 11, 0.3); }
+.sla-box.sla-success { border-color: #a7f3d0; background: #ecfdf5; }
+.sla-box.sla-warning { border-color: #fde68a; background: #fffbeb; }
 
 .sla-step {
     font-size: 10px;
@@ -555,6 +558,7 @@ input[type=range] {
 .sla-box h4 {
     font-size: 12px;
     margin-bottom: 2px;
+    color: var(--text-main);
 }
 
 .sla-box p {
