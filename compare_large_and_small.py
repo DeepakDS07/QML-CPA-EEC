@@ -11,6 +11,10 @@ import os
 import time
 import numpy as np
 import pandas as pd
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 PROJECT_ROOT = r'c:\Downloads\quantum_hackathon'
 sys.path.insert(0, PROJECT_ROOT)

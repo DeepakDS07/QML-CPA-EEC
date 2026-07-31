@@ -1,5 +1,9 @@
 from sklearn.svm import SVC
 import numpy as np
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 def train_classical_svm(X_train, y_train, C=1.0, seed=42):
     """Trains a Classical SVM with RBF kernel."""

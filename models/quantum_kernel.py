@@ -2,6 +2,10 @@ import pennylane as qml
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.metrics.pairwise import rbf_kernel
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 def create_quantum_kernel_node(n_qubits=8, n_layers=3):
     """Creates PennyLane QNode for state vector inner product kernel evaluation."""
