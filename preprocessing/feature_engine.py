@@ -111,9 +111,10 @@ def engineer_features(df, test_size=0.2, seed=42):
 
     X = data[FEATURE_NAMES].values
 
-    # Train / Test split
+    # Train / Test split safely handling small datasets
+    use_stratify = y if (len(np.unique(y)) > 1 and np.min(np.bincount(y)) >= 2) else None
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=seed, stratify=y if len(np.unique(y)) > 1 else None
+        X, y, test_size=test_size, random_state=seed, stratify=use_stratify
     )
 
     # Scale features: Standardize then MinMax to [0, pi]
