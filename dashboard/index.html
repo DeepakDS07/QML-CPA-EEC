@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Analytics -- Customer Retention & Churn Intelligence Engine</title>
+    <title>Customer Retention & Risk Dashboard</title>
 
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,63 +18,57 @@
 </head>
 <body>
 
-    <!-- Top Navigation Bar -->
+    <!-- Header Navigation -->
     <header class="navbar">
         <div class="logo-container">
-            <span class="brand-logo">⚛️</span>
-            <div class="logo-text">
-                <span class="title-main">Quantum Analytics</span>
-                <span class="title-sub">Predictive Customer Retention Engine</span>
-            </div>
+            <span class="logo-mark"></span>
+            <span class="title-main">Retention Dashboard</span>
         </div>
         <nav class="nav-links">
-            <a href="#upload-section">CSV Ingestion</a>
-            <a href="#predict-section">Live Predictor</a>
-            <a href="#leaderboard-section">Leaderboard</a>
-            <a href="#architecture-section">SLA Architecture</a>
-            <button class="btn-secondary" id="downloadPdfBtn">Export Report (PDF)</button>
+            <a href="#upload-section">Import CSV</a>
+            <a href="#predict-section">Single Customer</a>
+            <a href="#leaderboard-section">Models</a>
+            <a href="#architecture-section">API Status</a>
+            <button class="btn-secondary" id="downloadPdfBtn">Export PDF</button>
             <select id="simulatorToggle" class="select-input">
-                <option value="ideal">Simulator: Statevector (Ideal)</option>
-                <option value="noisy">Simulator: NISQ (1% Gate Error)</option>
+                <option value="ideal">Statevector Simulator</option>
+                <option value="noisy">NISQ Hardware Simulator (1% Noise)</option>
             </select>
-            <span id="apiStatusBadge" class="status-badge">Checking API...</span>
+            <span id="apiStatusBadge" class="status-badge">Checking connection...</span>
         </nav>
     </header>
 
     <main class="container">
 
-        <!-- Hero Summary Section -->
-        <section class="hero-section card">
-            <div class="hero-content">
-                <h1>Predictive Customer Churn & Retention Analytics</h1>
-                <p class="subtitle">
-                    High-precision repeat purchase prediction powered by an 8-qubit Data Re-uploading Hybrid QNN architecture. Tested on 1,067,371 rows of real e-commerce transactions.
-                </p>
-            </div>
+        <!-- Page Header -->
+        <section class="page-header">
+            <h1>Customer Churn & Revenue Risk Analysis</h1>
+            <p class="subtitle">
+                Evaluate customer repeat purchase probability and financial value at risk using an 8-qubit Data Re-uploading Hybrid QNN architecture trained on retail sales receipts.
+            </p>
         </section>
 
-        <!-- 1. CSV Dataset Upload & Live Trend Portal -->
+        <!-- 1. CSV Dataset Import & Analytics -->
         <section id="upload-section" class="card">
             <div class="card-header">
-                <h2>Customer Dataset Analysis</h2>
-                <p class="card-desc">Import raw sales receipt logs (CSV) to segment churn propensity and financial risk.</p>
+                <h2>Import Dataset & Segment Trends</h2>
+                <p class="card-desc">Upload transaction receipt logs (.csv) to analyze customer churn propensity across spending tiers.</p>
             </div>
 
             <div class="upload-grid">
                 <!-- Dropzone -->
                 <div class="upload-dropzone" id="dropzone">
-                    <span class="upload-icon">📄</span>
-                    <h4>Drag & drop receipt CSV file here</h4>
+                    <h4>Drop receipt CSV file here</h4>
                     <p class="upload-hint">Or click to select a file from your computer</p>
                     <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
                     <div class="btn-group">
-                        <button class="btn-primary" onclick="document.getElementById('csvFileInput').click()">Select File</button>
-                        <button class="btn-secondary" id="downloadSampleCsvBtn">Download Sample CSV</button>
+                        <button class="btn-primary" onclick="document.getElementById('csvFileInput').click()">Browse Files</button>
+                        <button class="btn-secondary" id="downloadSampleCsvBtn">Get Sample CSV</button>
                     </div>
                     <div id="uploadStatus" class="status-msg"></div>
                 </div>
 
-                <!-- KPI Metric Cards -->
+                <!-- Summary KPI Cards -->
                 <div class="kpi-grid">
                     <div class="kpi-card">
                         <span class="kpi-label">Total Customers</span>
@@ -82,78 +76,78 @@
                     </div>
                     <div class="kpi-card">
                         <span class="kpi-label">Churn Risk Rate</span>
-                        <span id="trendChurnRate" class="kpi-val risk">-- %</span>
+                        <span id="trendChurnRate" class="kpi-val text-danger">-- %</span>
                     </div>
                     <div class="kpi-card">
                         <span class="kpi-label">Repeat Buyers</span>
-                        <span id="trendLoyalCount" class="kpi-val success">--</span>
+                        <span id="trendLoyalCount" class="kpi-val text-success">--</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-label">CLV Expected Value Lost</span>
-                        <span id="trendRevenueRisk" class="kpi-val warning">$ --</span>
+                        <span class="kpi-label">Revenue at Risk</span>
+                        <span id="trendRevenueRisk" class="kpi-val text-warning">$ --</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Trend Visualizer Charts -->
-            <div class="charts-grid-2col">
+            <!-- Analytics Charts -->
+            <div class="charts-grid">
                 <div class="chart-box">
-                    <h3>Hourly Customer Shopping Dwell Trend</h3>
+                    <h3>Hourly Shopping Dwell & Risk Trend</h3>
                     <div class="chart-container"><canvas id="uploadHourlyTrendChart"></canvas></div>
                 </div>
                 <div class="chart-box">
-                    <h3>Recency vs Monetary Spend Risk Matrix</h3>
+                    <h3>Recency vs Spend Risk Matrix</h3>
                     <div class="chart-container"><canvas id="uploadScatterChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- Top At-Risk Customer Table -->
+            <!-- Customer Table -->
             <div class="table-box">
-                <div class="table-header-flex">
-                    <h3>At-Risk Customer Action List (Sorted by Expected Value Lost)</h3>
+                <div class="table-header flex-between">
+                    <h3>High Risk Customers (Sorted by Expected Value Lost)</h3>
                     <input type="text" id="atRiskSearchInput" class="search-input" placeholder="Search Customer ID...">
                 </div>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>CustomerID</th>
+                            <th>Customer ID</th>
                             <th>Recency</th>
                             <th>Monetary Spend</th>
                             <th>Churn Propensity</th>
-                            <th class="text-risk">Expected Value Lost ($)</th>
-                            <th>Strategic Action</th>
+                            <th class="text-danger">Expected Value Lost</th>
+                            <th>Retention Action</th>
                         </tr>
                     </thead>
                     <tbody id="atRiskTbody">
-                        <tr><td colspan="6" class="empty-msg">Upload a CSV dataset above to generate customer insights...</td></tr>
+                        <tr><td colspan="6" class="empty-msg">Upload a CSV file above to populate customer risk data.</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- 2. Single-Customer Live Predictor -->
+        <!-- 2. Single Customer Predictor -->
         <section id="predict-section" class="card">
             <div class="card-header">
-                <h2>Live Customer Prediction Model</h2>
-                <p class="card-desc">Adjust customer RFM parameters to run real-time inference against the production API.</p>
+                <h2>Single Customer Churn Simulator</h2>
+                <p class="card-desc">Adjust RFM parameters to run real-time inference against the production backend API.</p>
             </div>
 
             <div class="predictor-grid">
                 <div class="sliders-box">
                     <div class="slider-group">
-                        <label>Recency (Days since last order): <span id="vRecency">15</span></label>
+                        <label>Recency (Days since last purchase): <span id="vRecency">15</span></label>
                         <input type="range" id="sRecency" min="1" max="100" value="15">
                     </div>
                     <div class="slider-group">
-                        <label>Frequency (Total orders placed): <span id="vFrequency">8</span></label>
+                        <label>Frequency (Total order count): <span id="vFrequency">8</span></label>
                         <input type="range" id="sFrequency" min="1" max="30" value="8">
                     </div>
                     <div class="slider-group">
-                        <label>Monetary Spend ($ Total spend): <span id="vMonetary">350</span></label>
+                        <label>Monetary Spend (Total spend in $): <span id="vMonetary">350</span></label>
                         <input type="range" id="sMonetary" min="10" max="1000" value="350">
                     </div>
                     <div class="slider-group">
-                        <label>Item Diversity (Product variety ratio): <span id="vDiversity">0.60</span></label>
+                        <label>Item Diversity (Catalog variety ratio): <span id="vDiversity">0.60</span></label>
                         <input type="range" id="sDiversity" min="0.05" max="0.95" step="0.05" value="0.60">
                     </div>
                 </div>
@@ -169,26 +163,26 @@
                     </div>
                     <div class="result-label">Repeat Purchase Probability</div>
                     <div class="result-meta">
-                        <div>Server Latency: <span id="predictLatency" class="mono-val">12.5 ms</span></div>
-                        <div>Status: <span id="predictStatus" class="mono-val success">Normal (SLA &lt; 200ms)</span></div>
+                        <div>Response Time: <span id="predictLatency" class="mono-val">12.5 ms</span></div>
+                        <div>Status: <span id="predictStatus" class="mono-val text-success">Normal (SLA &lt; 200ms)</span></div>
                     </div>
                     <button class="btn-primary full-width" id="runBenchmarkBtn">Run Inference Request</button>
                     
-                    <!-- Live API Execution Console -->
+                    <!-- Console Box -->
                     <div class="console-box">
-                        <div class="console-header">LIVE API RESPONSE LOG:</div>
+                        <div class="console-header">API Output Log</div>
                         <div id="apiConsoleLog">Ready. Adjust sliders or click Run Inference.</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. Model Benchmark Leaderboard -->
+        <!-- 3. Model Leaderboard -->
         <section id="leaderboard-section" class="card">
             <div class="card-header flex-between">
                 <div>
-                    <h2>10-Model Performance Leaderboard</h2>
-                    <p class="card-desc">Evaluated on leak-free customer records (N = 150 Equal-Sample Benchmark & N = 2,500 Scaled Benchmark).</p>
+                    <h2>Model Performance Leaderboard</h2>
+                    <p class="card-desc">Evaluated on leak-free customer records under identical parameter constraints.</p>
                 </div>
                 <div class="tab-filters">
                     <button class="tab-btn active" data-filter="all">All Models</button>
@@ -204,7 +198,7 @@
                         <th>Type</th>
                         <th>Parameters</th>
                         <th>Accuracy</th>
-                        <th>F1-Score</th>
+                        <th>F1 Score</th>
                         <th>ROC-AUC</th>
                         <th>Execution Time</th>
                     </tr>
@@ -212,16 +206,16 @@
                 <tbody>
                     <tr class="highlight-row">
                         <td><strong>Hybrid QNN (Data Re-uploading)</strong></td>
-                        <td><span class="tag quantum">Quantum</span></td>
+                        <td><span class="tag tag-quantum">Quantum</span></td>
                         <td>57</td>
-                        <td class="stat-highlight">85.0%</td>
+                        <td class="text-success font-bold">85.0%</td>
                         <td>0.847</td>
                         <td>0.940</td>
                         <td>7.60s</td>
                     </tr>
                     <tr>
                         <td>Logistic Regression</td>
-                        <td><span class="tag classical">Classical</span></td>
+                        <td><span class="tag tag-classical">Classical</span></td>
                         <td>9</td>
                         <td>83.3%</td>
                         <td>0.808</td>
@@ -230,7 +224,7 @@
                     </tr>
                     <tr>
                         <td>Random Forest</td>
-                        <td><span class="tag classical">Classical</span></td>
+                        <td><span class="tag tag-classical">Classical</span></td>
                         <td>~15,000</td>
                         <td>81.7%</td>
                         <td>0.792</td>
@@ -239,7 +233,7 @@
                     </tr>
                     <tr>
                         <td>PyTorch MLP</td>
-                        <td><span class="tag classical">Classical</span></td>
+                        <td><span class="tag tag-classical">Classical</span></td>
                         <td>81</td>
                         <td>81.7%</td>
                         <td>0.792</td>
@@ -248,7 +242,7 @@
                     </tr>
                     <tr>
                         <td>XGBoost Classifier</td>
-                        <td><span class="tag classical">Classical</span></td>
+                        <td><span class="tag tag-classical">Classical</span></td>
                         <td>~10,000</td>
                         <td>80.0%</td>
                         <td>0.760</td>
@@ -257,7 +251,7 @@
                     </tr>
                     <tr>
                         <td>LightGBM Classifier</td>
-                        <td><span class="tag classical">Classical</span></td>
+                        <td><span class="tag tag-classical">Classical</span></td>
                         <td>~8,500</td>
                         <td>80.0%</td>
                         <td>0.760</td>
@@ -266,7 +260,7 @@
                     </tr>
                     <tr>
                         <td>Quantum Kernel SVM</td>
-                        <td><span class="tag quantum">Quantum</span></td>
+                        <td><span class="tag tag-quantum">Quantum</span></td>
                         <td>N/A</td>
                         <td>73.3%</td>
                         <td>0.704</td>
@@ -277,36 +271,36 @@
             </table>
         </section>
 
-        <!-- 4. System Architecture & Fallback SLA -->
+        <!-- 4. SLA Architecture -->
         <section id="architecture-section" class="card">
             <div class="card-header">
-                <h2>Enterprise 200ms Graceful Fallback SLA</h2>
-                <p class="card-desc">Production API fail-safe mechanism ensuring zero web checkout page freeze.</p>
+                <h2>Production SLA & Fallback Architecture</h2>
+                <p class="card-desc">Fail-safe execution loop ensuring zero latency spikes for production systems.</p>
             </div>
 
             <div class="sla-grid">
                 <div class="sla-box">
                     <span class="sla-step">Step 1</span>
                     <h4>Primary Execution</h4>
-                    <p>Incoming request hits 8-qubit PennyLane Quantum QNN.</p>
+                    <p>Request hits 8-qubit PennyLane QNN model.</p>
                 </div>
-                <div class="sla-arrow">➔</div>
+                <div class="sla-arrow">→</div>
                 <div class="sla-box">
                     <span class="sla-step">Step 2</span>
                     <h4>200ms SLA Check</h4>
-                    <p>Timer monitors quantum simulator execution window.</p>
+                    <p>Execution timer monitors response window.</p>
                 </div>
-                <div class="sla-arrow">➔</div>
-                <div class="sla-box success">
+                <div class="sla-arrow">→</div>
+                <div class="sla-box sla-success">
                     <span class="sla-step">&lt; 200ms</span>
                     <h4>Quantum Response</h4>
-                    <p>Returns high-accuracy quantum prediction probability.</p>
+                    <p>Returns high-precision quantum probability.</p>
                 </div>
                 <div class="sla-arrow">OR</div>
-                <div class="sla-box warning">
+                <div class="sla-box sla-warning">
                     <span class="sla-step">&gt; 200ms</span>
                     <h4>Classical Fallback</h4>
-                    <p>Instantly routes to 1.8ms PyTorch MLP to prevent page lag.</p>
+                    <p>Routes to 1.8ms PyTorch MLP to prevent page freeze.</p>
                 </div>
             </div>
         </section>
@@ -314,7 +308,7 @@
     </main>
 
     <footer class="footer">
-        <p>Quantum Analytics Platform | Built with PennyLane, PyTorch, and FastAPI</p>
+        <p>Customer Retention Dashboard — Built with PennyLane, PyTorch & FastAPI</p>
     </footer>
 
     <!-- App Logic -->
