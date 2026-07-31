@@ -11,3 +11,6 @@ uvicorn
 python-multipart
 xgboost
 lightgbm
+pytest
+httpx
+pytest-asyncio
