@@ -115,19 +115,26 @@ function initInteractiveEvents() {
                     logBox.innerHTML = `[${now}] POST /predict ➔ <span style="color:#22c55e;">200 OK</span> (${lat.toFixed(1)}ms)<br>` +
                                        `<span style="color:#a78bfa;">Source: ${src.toUpperCase()} | Prob: ${conf}%</span>`;
                 }
+            } else {
+                throw new Error(`API returned HTTP ${res.status}`);
             }
         } catch (e) {
-            let p = (0.04 * f - 0.015 * r + 0.0008 * m + 0.5) * 100;
-            p = Math.min(99.4, Math.max(12.1, p));
             const gauge = document.getElementById('gaugeVal');
-            if (gauge) gauge.innerText = p.toFixed(1) + '%';
+            const logBox = document.getElementById('apiConsoleLog');
+            if (gauge) {
+                gauge.innerText = 'API Offline';
+                gauge.style.color = '#dc2626';
+            }
+            if (logBox) {
+                logBox.innerHTML = `<span style="color:#dc2626;">API Error: Unable to connect to backend at ${API_BASE_URL}. Ensure uvicorn server is running.</span>`;
+            }
         }
     }
 
     const btnBench = document.getElementById('runBenchmarkBtn');
     if (btnBench) {
         btnBench.addEventListener('click', async () => {
-            btnBench.innerText = '⚡ Requesting Inference...';
+            btnBench.innerText = 'Requesting Inference...';
             const t0 = performance.now();
 
             const r = parseFloat(document.getElementById('sRecency').value);
@@ -153,22 +160,22 @@ function initInteractiveEvents() {
                     body: JSON.stringify({ features })
                 });
 
+                if (!res.ok) throw new Error(`API Returned HTTP ${res.status}`);
+
                 const data = await res.json();
                 const totalLat = performance.now() - t0;
 
-                alert(`⚡ LIVE BACKEND RESPONSE (${API_BASE_URL}/predict)\n\n` +
-                      `• Prediction Class: ${data.prediction} (${data.prediction === 1 ? 'Repeat Buyer' : 'Churn Risk'})\n` +
-                      `• Probability:       ${(data.confidence * 100).toFixed(1)}%\n` +
-                      `• Execution Source: ${data.source.toUpperCase()}\n` +
-                      `• Server Latency:   ${data.latency_ms.toFixed(2)} ms\n` +
-                      `• Total Round-Trip: ${totalLat.toFixed(2)} ms\n\n` +
-                      `Status: 🟢 Backend API Operational & Graceful Fallback Active`);
+                alert(`LIVE BACKEND INFERENCE RESPONSE (${API_BASE_URL}/predict)\n\n` +
+                      `• Customer Prediction: ${data.prediction === 1 ? 'Repeat Buyer (Class 1)' : 'Churn Risk (Class 0)'}\n` +
+                      `• Model Probability:   ${(data.confidence * 100).toFixed(1)}%\n` +
+                      `• Execution Source:    ${data.source.toUpperCase()}\n` +
+                      `• Model Latency:       ${data.latency_ms.toFixed(2)} ms\n` +
+                      `• Total Round-Trip:    ${totalLat.toFixed(2)} ms\n\n` +
+                      `Status: 🟢 100% Genuine Prediction from Production Backend`);
             } catch (e) {
-                alert('⚡ Prediction Response:\n\n' +
-                      '⚛️ PennyLane Hybrid QNN: 12.5 ms | Probability: 87.4%\n' +
-                      'Status: Successful prediction!');
+                alert(`API Connection Failed:\n\nUnable to reach ${API_BASE_URL}/predict.\nPlease ensure the uvicorn backend server is running on port 8000.`);
             } finally {
-                btnBench.innerText = '⚡ Run Live Inference Request';
+                btnBench.innerText = 'Run Inference Request';
             }
         });
     }
@@ -307,10 +314,10 @@ function initDatasetUpload() {
                     row.innerHTML = `
                         <td><strong>${c.id}</strong></td>
                         <td>${c.recency_days} days ago</td>
-                        <td style="color:#eab308;font-weight:600;">$${c.monetary_usd.toLocaleString()}</td>
-                        <td><span style="color:#ef4444;font-weight:700;">${c.churn_prob}% Churn Risk</span></td>
-                        <td style="color:#ef4444;font-weight:800;font-family:'JetBrains Mono',monospace;">$${c.expected_value_lost_usd.toLocaleString()}</td>
-                        <td><button class="btn-primary" style="padding:4px 10px;font-size:11px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#ef4444;">🎁 Send 15% Retention Offer</button></td>
+                        <td style="font-weight:600;">$${c.monetary_usd.toLocaleString()}</td>
+                        <td><span style="color:var(--danger);font-weight:700;">${c.churn_prob}% Churn Risk</span></td>
+                        <td style="color:var(--danger);font-weight:700;font-family:'JetBrains Mono',monospace;">$${c.expected_value_lost_usd.toLocaleString()}</td>
+                        <td><button class="btn-action-sm" onclick="openCouponModal('${c.id}', ${c.monetary_usd}, ${c.churn_prob})">Simulate Offer</button></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -337,12 +344,15 @@ function initActionHandlers() {
         csvSampleBtn.addEventListener('click', () => {
             const csvHeader = "InvoiceNo,StockCode,Description,Quantity,InvoiceDate,UnitPrice,CustomerID,Country\n";
             let csvRows = "";
-            for (let i = 1; i <= 50; i++) {
-                const inv = 536365 + i;
-                const cust = 13000 + (i % 10);
-                const qty = Math.floor(Math.random() * 12) + 1;
-                const price = (Math.random() * 45 + 5).toFixed(2);
-                csvRows += `${inv},85123A,WHITE HANGING HEART T-LIGHT HOLDER,${qty},2010-12-01 08:26:00,${price},${cust},United Kingdom\n`;
+            for (let i = 1; i <= 100; i++) {
+                const inv = 536365 + Math.floor(i / 2);
+                const cust = 13000 + (i % 15);
+                const qty = Math.floor(Math.random() * 8) + 1;
+                const price = (Math.random() * 35 + 4).toFixed(2);
+                const hour = String((i * 3) % 24).padStart(2, '0');
+                const day = String((i % 28) + 1).padStart(2, '0');
+                const dateStr = `2010-12-${day} ${hour}:26:00`;
+                csvRows += `${inv},85123A,WHITE HANGING HEART T-LIGHT HOLDER,${qty},${dateStr},${price},${cust},United Kingdom\n`;
             }
             const blob = new Blob([csvHeader + csvRows], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
