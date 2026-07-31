@@ -96,13 +96,25 @@ function initInteractiveEvents() {
                 const gauge = document.getElementById('gaugeVal');
                 const sourceTag = document.getElementById('predictSource');
                 const latSpan = document.getElementById('predictLatency');
+                const gBar = document.getElementById('gaugeBar');
+                const logBox = document.getElementById('apiConsoleLog');
 
                 if (gauge) {
                     gauge.innerText = conf + '%';
                     gauge.style.color = pred === 1 ? '#22c55e' : '#ef4444';
                 }
+                if (gBar) {
+                    gBar.style.width = conf + '%';
+                    gBar.style.background = pred === 1 ? '#22c55e' : '#ef4444';
+                }
                 if (sourceTag) sourceTag.innerText = src.toUpperCase();
                 if (latSpan) latSpan.innerText = lat.toFixed(1) + ' ms';
+
+                if (logBox) {
+                    const now = new Date().toLocaleTimeString();
+                    logBox.innerHTML = `[${now}] POST /predict ➔ <span style="color:#22c55e;">200 OK</span> (${lat.toFixed(1)}ms)<br>` +
+                                       `<span style="color:#a78bfa;">Source: ${src.toUpperCase()} | Prob: ${conf}%</span>`;
+                }
             }
         } catch (e) {
             let p = (0.04 * f - 0.015 * r + 0.0008 * m + 0.5) * 100;
@@ -206,8 +218,11 @@ function initDatasetUpload() {
     async function processFileUpload(file) {
         if (statusDiv) statusDiv.innerHTML = '⏳ Uploading dataset & calculating quantum trends...';
 
+        const simType = document.getElementById('simulatorToggle') ? document.getElementById('simulatorToggle').value : 'ideal';
+
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('simulator_type', simType);
 
         try {
             const res = await fetch(`${API_BASE_URL}/upload-dataset`, {
@@ -218,7 +233,7 @@ function initDatasetUpload() {
             if (!res.ok) throw new Error('API processing error');
 
             const data = await res.json();
-            if (statusDiv) statusDiv.innerHTML = `🟢 Live Analysis Complete: <b>${data.filename}</b>`;
+            if (statusDiv) statusDiv.innerHTML = `🟢 Live Analysis Complete (${data.simulator_used}): <b>${data.filename}</b>`;
 
             // Update Summary Cards
             document.getElementById('trendTotalCust').innerText = data.summary.total_customers.toLocaleString();
@@ -283,7 +298,7 @@ function initDatasetUpload() {
                 });
             }
 
-            // Populate Top At-Risk Customer Table
+            // Populate Top At-Risk Customer Table (Sorted by Expected Value Lost)
             const tbody = document.getElementById('atRiskTbody');
             if (tbody && data.top_at_risk_customers) {
                 tbody.innerHTML = '';
@@ -294,7 +309,8 @@ function initDatasetUpload() {
                         <td>${c.recency_days} days ago</td>
                         <td style="color:#eab308;font-weight:600;">$${c.monetary_usd.toLocaleString()}</td>
                         <td><span style="color:#ef4444;font-weight:700;">${c.churn_prob}% Churn Risk</span></td>
-                        <td><button class="btn-primary" style="padding:4px 10px;font-size:11px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#ef4444;">🎁 Send 15% Off Offer</button></td>
+                        <td style="color:#ef4444;font-weight:800;font-family:'JetBrains Mono',monospace;">$${c.expected_value_lost_usd.toLocaleString()}</td>
+                        <td><button class="btn-primary" style="padding:4px 10px;font-size:11px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#ef4444;">🎁 Send 15% Retention Offer</button></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -349,4 +365,30 @@ function initActionHandlers() {
             });
         });
     }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.08)';
+                b.style.color = '#94a3b8';
+            });
+            const target = e.target;
+            target.classList.add('active');
+            target.style.background = 'var(--primary)';
+            target.style.color = '#fff';
+
+            const filter = target.getAttribute('data-filter');
+            const rows = document.querySelectorAll('#leaderboard-section tbody tr');
+            rows.forEach(r => {
+                if (filter === 'all') {
+                    r.style.display = '';
+                } else if (filter === 'quantum') {
+                    r.style.display = r.innerHTML.includes('Quantum') ? '' : 'none';
+                } else if (filter === 'classical') {
+                    r.style.display = r.innerHTML.includes('Classical') ? '' : 'none';
+                }
+            });
+        });
+    });
 }

@@ -33,6 +33,10 @@
             <a href="#leaderboard-section">Model Leaderboard</a>
             <a href="#architecture-section">Architecture & SLA</a>
             <button class="btn-primary" id="downloadPdfBtn" style="padding:5px 12px;font-size:12px;">📄 Export PDF Report</button>
+            <select id="simulatorToggle" style="padding:5px 10px;font-size:11px;background:rgba(15,23,42,0.85);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;border-radius:6px;cursor:pointer;font-weight:600;">
+                <option value="ideal">⚛️ Ideal Statevector Simulator</option>
+                <option value="noisy">🌀 NISQ Noisy Simulator (1% Gate Error)</option>
+            </select>
             <span id="apiStatusBadge" class="status-badge">Checking API...</span>
         </nav>
     </header>
@@ -83,7 +87,7 @@
                         <span id="trendLoyalCount" class="kpi-val success">--</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-label">Revenue At Risk</span>
+                        <span class="kpi-label">CLV Expected Value Lost</span>
                         <span id="trendRevenueRisk" class="kpi-val warning">$ --</span>
                     </div>
                 </div>
@@ -104,7 +108,7 @@
             <!-- Top At-Risk Customer Table -->
             <div class="table-box">
                 <div class="table-header-flex" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <h3 style="margin:0;">🚨 At-Risk High-Spend Customer Action List</h3>
+                    <h3 style="margin:0;">🚨 Strategic Action List (Sorted by Expected Value Lost)</h3>
                     <input type="text" id="atRiskSearchInput" placeholder="🔍 Search Customer ID..." style="padding:5px 10px;font-size:12px;background:rgba(15,23,42,0.8);border:1px solid var(--border-color);color:#fff;border-radius:6px;width:220px;">
                 </div>
                 <table class="data-table">
@@ -114,11 +118,12 @@
                             <th>Recency</th>
                             <th>Monetary Spend</th>
                             <th>Quantum Churn Propensity</th>
-                            <th>Action</th>
+                            <th style="color:#ef4444;font-weight:700;">Expected Value Lost ($)</th>
+                            <th>Strategic Retention Action</th>
                         </tr>
                     </thead>
                     <tbody id="atRiskTbody">
-                        <tr><td colspan="5" class="empty-msg">Upload a CSV dataset above to generate live customer trends...</td></tr>
+                        <tr><td colspan="6" class="empty-msg">Upload a CSV dataset above to generate strategic customer trends...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -157,21 +162,37 @@
                         <span id="predictSource" class="source-tag">QUANTUM</span>
                     </div>
                     <div id="gaugeVal" class="result-val">87.4%</div>
+                    <div style="width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin:6px 0 10px 0;overflow:hidden;">
+                        <div id="gaugeBar" style="width:87.4%;height:100%;background:#22c55e;transition:width 0.3s ease, background 0.3s ease;"></div>
+                    </div>
                     <div class="result-label">Repeat Purchase Probability</div>
                     <div class="result-meta">
                         <div>Server Latency: <span id="predictLatency" class="mono-val">12.5 ms</span></div>
                         <div>Status: <span id="predictStatus" class="mono-val success">NORMAL (SLA &lt; 200ms)</span></div>
                     </div>
                     <button class="btn-primary full-width" id="runBenchmarkBtn">⚡ Run Live Inference Request</button>
+                    
+                    <!-- Live API Execution Console -->
+                    <div style="margin-top:12px;width:100%;text-align:left;background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#94a3b8;">
+                        <div style="color:#64748b;margin-bottom:4px;font-weight:600;">📟 LIVE API RESPONSE LOG:</div>
+                        <div id="apiConsoleLog">Ready. Adjust sliders or click Run Inference.</div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- 3. Model Benchmark Leaderboard -->
         <section id="leaderboard-section" class="card">
-            <div class="card-header">
-                <h2>📊 10-Model Benchmark Leaderboard</h2>
-                <p class="card-desc">Evaluated on leak-free customer records (N = 150 Equal-Sample Benchmark & N = 2,500 Scaled Benchmark).</p>
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h2>📊 10-Model Benchmark Leaderboard</h2>
+                    <p class="card-desc">Evaluated on leak-free customer records (N = 150 Equal-Sample Benchmark & N = 2,500 Scaled Benchmark).</p>
+                </div>
+                <div class="tab-filters" style="display:flex;gap:6px;">
+                    <button class="tab-btn active" data-filter="all" style="padding:4px 10px;font-size:11px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;">All Models</button>
+                    <button class="tab-btn" data-filter="quantum" style="padding:4px 10px;font-size:11px;background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.1);border-radius:4px;cursor:pointer;">⚛️ Quantum</button>
+                    <button class="tab-btn" data-filter="classical" style="padding:4px 10px;font-size:11px;background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.1);border-radius:4px;cursor:pointer;">⚡ Classical</button>
+                </div>
             </div>
 
             <table class="data-table">
