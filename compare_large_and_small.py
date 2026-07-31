@@ -91,7 +91,7 @@ def run_comparison():
 
     # 4. PyTorch MLP
     t0 = time.time()
-    mlp_l = train_classical_mlp(X_tr_lc, y_tr_lc, epochs=30)
+    mlp_l, _ = train_classical_mlp(X_tr_lc, y_tr_lc, epochs=30)
     p_mlp_l, pr_mlp_l = predict_classical_mlp(mlp_l, X_te_lc)
     t_mlp_l = time.time() - t0
     m = eval_metrics(y_te_lc, p_mlp_l, pr_mlp_l)
