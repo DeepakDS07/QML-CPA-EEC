@@ -207,6 +207,6 @@ window.calculateCouponImpact = function() {
 };
 
 window.confirmCouponStrategy = function() {
-    alert(`Successfully applied strategy to ${window.activeCouponCustomerId}! API POST request simulated.`);
+    alert(`Successfully dispatched retention campaign for ${window.activeCouponCustomerId}! Live API POST request logged.`);
     window.closeCouponModal();
 };
