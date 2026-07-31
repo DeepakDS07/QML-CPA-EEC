@@ -51,7 +51,7 @@ def run_comparison():
     print("-" * 95)
     
     df_large = load_dataset('uci')
-    X_tr_l, X_te_l, y_tr_l, y_te_l, _, _ = engineer_features(df_large, seed=42)
+    X_tr_l, X_te_l, y_tr_l, y_te_l, _, _, _ = engineer_features(df_large, seed=42)
     
     X_tr_lc = X_tr_l[:2500]
     y_tr_lc = y_tr_l[:2500]
@@ -65,7 +65,7 @@ def run_comparison():
 
     models_large = []
 
-    # 1. XGBoost
+    # 1. XGBoost Classifier
     t0 = time.time()
     xgb_l = train_xgboost(X_tr_lc, y_tr_lc)
     p_xgb_l, pr_xgb_l = predict_xgboost(xgb_l, X_te_lc)
@@ -73,13 +73,13 @@ def run_comparison():
     m = eval_metrics(y_te_lc, p_xgb_l, pr_xgb_l)
     models_large.append(('XGBoost Classifier', 'Classical', len(X_tr_lc), m['accuracy'], m['f1'], m['auc'], '~10,000', f"{t_xgb_l:.3f}s"))
 
-    # 2. LightGBM
+    # 2. LightGBM Classifier
     t0 = time.time()
-    lgbm_l = train_lightgbm(X_tr_lc, y_tr_lc)
-    p_lgbm_l, pr_lgbm_l = predict_lightgbm(lgbm_l, X_te_lc)
-    t_lgbm_l = time.time() - t0
-    m = eval_metrics(y_te_lc, p_lgbm_l, pr_lgbm_l)
-    models_large.append(('LightGBM Classifier', 'Classical', len(X_tr_lc), m['accuracy'], m['f1'], m['auc'], '~8,500', f"{t_lgbm_l:.3f}s"))
+    lgb_l = train_lightgbm(X_tr_lc, y_tr_lc)
+    p_lgb_l, pr_lgb_l = predict_lightgbm(lgb_l, X_te_lc)
+    t_lgb_l = time.time() - t0
+    m = eval_metrics(y_te_lc, p_lgb_l, pr_lgb_l)
+    models_large.append(('LightGBM Classifier', 'Classical', len(X_tr_lc), m['accuracy'], m['f1'], m['auc'], '~8,000', f"{t_lgb_l:.3f}s"))
 
     # 3. Random Forest
     t0 = time.time()
@@ -91,7 +91,7 @@ def run_comparison():
 
     # 4. PyTorch MLP
     t0 = time.time()
-    mlp_l, _ = train_classical_mlp(X_tr_lc, y_tr_lc, epochs=25)
+    mlp_l = train_classical_mlp(X_tr_lc, y_tr_lc, epochs=30)
     p_mlp_l, pr_mlp_l = predict_classical_mlp(mlp_l, X_te_lc)
     t_mlp_l = time.time() - t0
     m = eval_metrics(y_te_lc, p_mlp_l, pr_mlp_l)
@@ -132,7 +132,7 @@ def run_comparison():
     print("-" * 95)
     
     df_small = load_dataset('instacart')
-    X_tr_s, X_te_s, y_tr_s, y_te_s, _, _ = engineer_features(df_small, seed=42)
+    X_tr_s, X_te_s, y_tr_s, y_te_s, _, _, _ = engineer_features(df_small, seed=42)
 
     models_small = []
 

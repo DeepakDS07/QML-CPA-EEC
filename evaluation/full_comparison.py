@@ -57,7 +57,7 @@ def run_full_comparison():
     print("=" * 80)
 
     df = load_dataset('uci')
-    X_tr, X_te, y_tr, y_te, _, _ = engineer_features(df, seed=42)
+    X_tr, X_te, y_tr, y_te, _, _, _ = engineer_features(df, seed=42)
 
     # 1. Equal-Sample Subset (N=150 Train, N=60 Test for ALL models)
     X_tr_eq = X_tr[:150]

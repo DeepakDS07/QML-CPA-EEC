@@ -64,8 +64,10 @@ def generate_synthetic_store_sales(n_samples=1000, seed=1024):
     df['OnPromotion'] = np.random.choice([0, 1], size=n_samples, p=[0.7, 0.3])
     return df
 
-def save_all_synthetic_datasets(base_path=r'c:\Downloads\Restaurant\data'):
+def save_all_synthetic_datasets(base_path=None):
     """Generates and saves synthetic CSV files if datasets do not exist."""
+    if base_path is None:
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
     targets = {
         'uci/online_retail.csv': generate_synthetic_uci,
         'olist/olist_orders.csv': generate_synthetic_olist,

@@ -5,7 +5,7 @@ from preprocessing.data_loader import load_dataset
 def validate_data(dataset_name='uci'):
     """Validates scaled data range, missing values, and target distributions."""
     df = load_dataset(dataset_name)
-    X_train, X_test, y_train, y_test, _, _ = engineer_features(df)
+    X_train, X_test, y_train, y_test, _, _, _ = engineer_features(df)
     
     # Assertions
     assert not np.isnan(X_train).any(), "NaN values found in X_train"

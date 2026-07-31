@@ -55,7 +55,7 @@ def run_5_seed_training(dataset_name='uci', epochs=20):
     
     for seed_idx, seed in enumerate(SEEDS):
         print(f"--- Seed {seed_idx+1}/5 (Seed={seed}) ---")
-        X_tr, X_te, y_tr, y_te, scaler, minmax = engineer_features(df, seed=seed)
+        X_tr, X_te, y_tr, y_te, scaler, minmax, _ = engineer_features(df, seed=seed)
         
         # Subsets for quantum vs classical training
         X_tr_q = X_tr[:150]

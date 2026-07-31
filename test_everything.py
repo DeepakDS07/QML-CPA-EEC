@@ -37,7 +37,7 @@ def run_all_tests():
         from preprocessing.data_loader import load_dataset
         from preprocessing.feature_engine import engineer_features, FEATURE_NAMES
         df = load_dataset('uci')
-        X_tr, X_te, y_tr, y_te, scaler, minmax = engineer_features(df, seed=42)
+        X_tr, X_te, y_tr, y_te, scaler, minmax, _ = engineer_features(df, seed=42)
         assert X_tr.shape[1] == 8, "Feature count must be 8"
         assert 0.0 <= X_tr.min() and X_tr.max() <= np.pi, "Features must be clipped to [0, pi]"
         print(f"  -> PASS: Loaded {len(df):,} rows. Engineered 8 features in [0, pi] range.")

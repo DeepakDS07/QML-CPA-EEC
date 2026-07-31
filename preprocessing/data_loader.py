@@ -53,6 +53,12 @@ def load_dataset(dataset_name='uci'):
             }
             return pd.read_csv(fallback_paths[dataset_name])
 
+    # Fallback for 'synthetic' or unknown dataset names
+    print(f"[DataLoader] Loading synthetic fallback dataset for '{dataset_name}'...")
+    save_all_synthetic_datasets()
+    synthetic_path = r'c:\Downloads\quantum_hackathon\data\uci\online_retail.csv'
+    return pd.read_csv(synthetic_path)
+
 if __name__ == '__main__':
     for d_name in ['uci', 'customer', 'olist']:
         df_test = load_dataset(d_name)

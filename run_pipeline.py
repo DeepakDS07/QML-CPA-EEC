@@ -50,7 +50,7 @@ def step2_validate():
     
     for ds in ['uci', 'olist', 'customer', 'instacart', 'store_sales']:
         df = load_dataset(ds)
-        X_tr, X_te, y_tr, y_te, _, _ = engineer_features(df)
+        X_tr, X_te, y_tr, y_te, _, _, _ = engineer_features(df)
         print(f"  [{ds.upper()}] Train: {X_tr.shape}, Test: {X_te.shape}, "
               f"Range: [{X_tr.min():.3f}, {X_tr.max():.3f}], "
               f"Class balance: {y_tr.mean():.2f}")
@@ -87,7 +87,7 @@ def step3_train():
     
     for seed_idx, seed in enumerate(SEEDS):
         print(f"\n  --- Seed {seed_idx+1}/5 (seed={seed}) ---")
-        X_tr, X_te, y_tr, y_te, _, _ = engineer_features(df, seed=seed)
+        X_tr, X_te, y_tr, y_te, _, _, _ = engineer_features(df, seed=seed)
         
         # Subsample for Classical models to prevent O(N^2) SVC hang on 850k rows
         max_c_samples = min(2500, len(X_tr))

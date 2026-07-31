@@ -37,7 +37,7 @@ def main():
 
     # Load data
     df = load_dataset('uci')
-    X_tr, X_te, y_tr, y_te, _, _ = engineer_features(df, seed=42)
+    X_tr, X_te, y_tr, y_te, _, _, _ = engineer_features(df, seed=42)
 
     # Use the SAME small sample size the benchmark uses
     N_TRAIN = 150

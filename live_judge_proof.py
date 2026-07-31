@@ -56,7 +56,7 @@ def run_live_proof():
     print("-" * 80)
     
     from preprocessing.feature_engine import engineer_features, FEATURE_NAMES
-    X_tr, X_te, y_tr, y_te, _, _ = engineer_features(df, seed=42)
+    X_tr, X_te, y_tr, y_te, _, _, _ = engineer_features(df, seed=42)
     
     print(f"  [OK] Total Engineered Customer Samples: {len(X_tr) + len(X_te):,}")
     print(f"  [OK] Class Balance (Positive Ratio): {y_tr.mean():.4f} (50/50 Balanced)")

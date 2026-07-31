@@ -112,7 +112,11 @@ def engineer_features(df, test_size=0.2, seed=42):
     X = data[FEATURE_NAMES].values
 
     # Train / Test split safely handling small datasets
-    use_stratify = y if (len(np.unique(y)) > 1 and np.min(np.bincount(y)) >= 2) else None
+    n_classes = len(np.unique(y))
+    min_class_count = np.min(np.bincount(y)) if n_classes > 1 else 0
+    test_samples = int(len(y) * test_size)
+    use_stratify = y if (n_classes > 1 and min_class_count >= 2 and test_samples >= n_classes) else None
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=seed, stratify=use_stratify
     )
@@ -130,6 +134,6 @@ def engineer_features(df, test_size=0.2, seed=42):
 
 if __name__ == '__main__':
     df = load_dataset('uci')
-    X_tr, X_te, y_tr, y_te, sc, mm = engineer_features(df)
+    X_tr, X_te, y_tr, y_te, sc, mm, cust_data = engineer_features(df)
     print(f"Features engineered! Train shape: {X_tr.shape}, Test shape: {X_te.shape}")
     print(f"X_train range: [{X_tr.min():.3f}, {X_tr.max():.3f}], Class balance: {y_tr.mean():.2f}")
